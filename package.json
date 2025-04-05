@@ -1,23 +1,30 @@
 {
     "name": "record-manager",
     "version": "1.0.0",
+    "description": "画像付きの音楽アルバムを登録・検索・編集・削除できるExpress + SQLiteベースの管理システム",
     "main": "server.js",
     "scripts": {
-        "start": "node server.js"
-    },
-    "dependencies": {
-        "better-sqlite3": "^11.9.1",
-        "express": "^4.21.2",
-        "multer": "^1.4.5-lts.2"
+      "start": "node server.js",
+      "dev": "nodemon server.js"
     },
     "keywords": [
-        "music",
-        "album",
-        "record",
-        "sqlite",
-        "express"
+      "music",
+      "album",
+      "record",
+      "sqlite",
+      "express",
+      "upload",
+      "multer"
     ],
     "author": "DKswing",
     "license": "ISC",
-    "description": "音楽アルバム管理用のシステム"
-}
+    "dependencies": {
+      "better-sqlite3": "^11.9.1",
+      "express": "^4.21.2",
+      "multer": "^1.4.5-lts.2"
+    },
+    "devDependencies": {
+      "nodemon": "^3.0.3"
+    }
+  }
+  
