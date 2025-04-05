@@ -1,8 +1,8 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const sqlite = require('better-sqlite3'); // 変更: sqlite3 -> better-sqlite3
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -20,19 +20,17 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
-// SQLiteデータベースの接続
-const db = new sqlite3.Database('./database.db');
+// SQLiteデータベースの接続（同期的に接続）
+const db = new sqlite('./database.db');
 
 // データベースの初期化
-db.serialize(() => {
-  db.run(`CREATE TABLE IF NOT EXISTS records (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    artist TEXT NOT NULL,
-    album TEXT NOT NULL,
-    image TEXT,
-    created_at TEXT NOT NULL
-  )`);
-});
+db.prepare(`CREATE TABLE IF NOT EXISTS records (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  artist TEXT NOT NULL,
+  album TEXT NOT NULL,
+  image TEXT,
+  created_at TEXT NOT NULL
+)`).run();
 
 // 画像のアップロード設定
 const upload = multer({
@@ -60,17 +58,15 @@ app.post('/add', upload.single('image'), (req, res) => {
   const image = req.file ? req.file.filename : null;
   const createdAt = new Date().toISOString();  // 現在の日時を取得
 
-  db.run(
-    'INSERT INTO records (artist, album, image, created_at) VALUES (?, ?, ?, ?)',
-    [artist, album, image, createdAt],
-    (err) => {
-      if (err) {
-        console.error(err.message);
-        return res.status(500).send("アルバム登録に失敗しました");
-      }
-      res.send("登録完了");
-    }
-  );
+  try {
+    db.prepare(
+      'INSERT INTO records (artist, album, image, created_at) VALUES (?, ?, ?, ?)'
+    ).run(artist, album, image, createdAt);
+    res.send("登録完了");
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("アルバム登録に失敗しました");
+  }
 });
 
 // 画像付きアルバムのリストを取得（検索機能付き）
@@ -89,12 +85,8 @@ app.get('/list', (req, res) => {
     params.push(`%${album}%`);
   }
 
-  db.all(query, params, (err, rows) => {
-    if (err) {
-      console.error(err.message);
-      return res.status(500).send("データ取得に失敗しました");
-    }
-
+  try {
+    const rows = db.prepare(query).all(...params);
     res.json(rows.map(row => {
       // 画像のURLを生成
       row.imageUrl = row.image ? `/uploads/${row.image}` : null;
@@ -102,14 +94,18 @@ app.get('/list', (req, res) => {
       row.created_at = new Date(row.created_at).toLocaleDateString();
       return row;
     }));
-  });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("データ取得に失敗しました");
+  }
 });
 
 // 画像の削除
 app.delete('/delete/:id', (req, res) => {
-  db.get('SELECT image FROM records WHERE id = ?', [req.params.id], (err, row) => {
-    if (err || !row) {
-      console.error(err.message);
+  try {
+    const row = db.prepare('SELECT image FROM records WHERE id = ?').get(req.params.id);
+
+    if (!row) {
       return res.status(500).send("レコードが見つかりません");
     }
 
@@ -122,15 +118,13 @@ app.delete('/delete/:id', (req, res) => {
       }
 
       // レコードの削除
-      db.run('DELETE FROM records WHERE id = ?', [req.params.id], (err) => {
-        if (err) {
-          console.error(err.message);
-          return res.status(500).send("レコード削除に失敗しました");
-        }
-        res.send("削除成功");
-      });
+      db.prepare('DELETE FROM records WHERE id = ?').run(req.params.id);
+      res.send("削除成功");
     });
-  });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("レコード削除に失敗しました");
+  }
 });
 
 // レコードの編集
@@ -143,17 +137,15 @@ app.put('/edit/:id', upload.single('image'), (req, res) => {
     return res.status(400).send('アーティスト名とアルバム名は必須です');
   }
 
-  db.run(
-    'UPDATE records SET artist = ?, album = ?, image = ? WHERE id = ?',
-    [artist, album, image, req.params.id],
-    (err) => {
-      if (err) {
-        console.error(err.message);
-        return res.status(500).send("更新エラー");
-      }
-      res.send("更新完了");
-    }
-  );
+  try {
+    db.prepare(
+      'UPDATE records SET artist = ?, album = ?, image = ? WHERE id = ?'
+    ).run(artist, album, image, req.params.id);
+    res.send("更新完了");
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("更新エラー");
+  }
 });
 
 // サーバーの起動
