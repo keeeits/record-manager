@@ -5,7 +5,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Basic認証設定
-const auth = { login: 'yourID', password: 'yourPassword' };
+const auth = { login: 'keito', password: '0301' };
 app.use((req, res, next) => {
   const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
   const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
