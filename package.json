@@ -9,8 +9,8 @@
         "better-sqlite3": "^11.9.1",
         "express": "^4.21.2"
     },
-    "keywords": [],
-    "author": "",
+    "keywords": ["music", "album", "record", "sqlite", "express"],
+    "author": "DKswing",
     "license": "ISC",
-    "description": ""
+    "description": "音楽アルバム管理用のシステム"
 }
