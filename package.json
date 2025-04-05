@@ -7,9 +7,16 @@
     },
     "dependencies": {
         "better-sqlite3": "^11.9.1",
-        "express": "^4.21.2"
+        "express": "^4.21.2",
+        "sqlite3": "^5.1.7"
     },
-    "keywords": ["music", "album", "record", "sqlite", "express"],
+    "keywords": [
+        "music",
+        "album",
+        "record",
+        "sqlite",
+        "express"
+    ],
     "author": "DKswing",
     "license": "ISC",
     "description": "音楽アルバム管理用のシステム"
