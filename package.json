@@ -1,0 +1,32 @@
+{
+  "name": "dk-swing-manager",
+  "version": "1.0.0",
+  "description": "A project description",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "npm install"
+  },
+  "dependencies": {
+    "better-sqlite3": "^7.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.2",
+    "sqlite3": "^5.0.0"
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keeeits/DKswing-manager.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/keeeits/DKswing-manager/issues"
+  },
+  "homepage": "https://github.com/keeeits/DKswing-manager#readme"
+}
