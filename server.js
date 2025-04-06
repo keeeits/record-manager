@@ -22,8 +22,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 
-// SQLiteデータベース接続
-const db = new sqlite('./database.db');
+// SQLiteデータベース接続（環境変数でデータベースのパスを管理）
+const dbPath = process.env.DATABASE_PATH || './database.db';  // Renderで環境変数を使ってパス管理
+const db = new sqlite(dbPath);
+
+// データベース初期化（テーブル作成）
 db.prepare(`
   CREATE TABLE IF NOT EXISTS records (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
